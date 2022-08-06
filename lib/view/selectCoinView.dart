@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
-import 'package:test/coinFetchMethods/coinPriceInfo.dart';
+import 'package:test/coinFetchMethods/CoinPriceInfo.dart';
 import 'searchView.dart';
 
 class coinView extends StatefulWidget {
@@ -14,6 +14,8 @@ class _coinViewState extends State<coinView> {
   @override
   Widget build(BuildContext context) {
     Color textColor = Color.fromARGB(255, 54, 54, 54);
+    CoinPriceinfo coinPriceinfo = CoinPriceinfo();
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -93,10 +95,6 @@ class _coinViewState extends State<coinView> {
                     ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () => {print("asd")},
-                  child: Text("API"),
-                ),
               ],
             ),
           ),
@@ -108,8 +106,7 @@ class _coinViewState extends State<coinView> {
   // TODO: Add futureBuilder inside this widget to make the call
   Widget coinItem(String coin, String coinSymbol) {
     Color textColor = Color.fromARGB(255, 80, 80, 80);
-    CoinPriceinfo coinPriceinfo = CoinPriceinfo();
-    var price = coinPriceinfo.getCurrentPriceOfMultipleCoins(coinSymbol);
+
     return InkWell(
       onTap: () => {
         Navigator.push(
@@ -146,17 +143,6 @@ class _coinViewState extends State<coinView> {
                   padding: const EdgeInsets.only(left: 1.0),
                   child: Text(
                     coin,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 1.0),
-                  child: Text(
-                    "0,59",
                     style: TextStyle(
                       color: textColor,
                       fontWeight: FontWeight.bold,

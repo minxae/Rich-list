@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.only(left: 30, right: 30),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 46, 46, 46),
+                      primary: Color.fromARGB(255, 8, 138, 245),
                     ),
                     onPressed: () => {NextPage(coin, context)},
                     child: Center(
@@ -129,6 +129,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> NextPage(String coin, BuildContext context) async {
+    CircularProgressIndicator();
     if (searchUserWallet.text != "") {
       if (searchUserWallet.text.length > 9) {
         String userInfoObj =

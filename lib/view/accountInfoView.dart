@@ -1,5 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:test/coinFetchMethods/CoinPriceInfo.dart';
 import 'dart:convert';
 import 'searchView.dart';
 import 'package:test/coinFetchMethods/RippleApi.dart';
@@ -114,6 +117,11 @@ class _accountInfoState extends State<accountInfo> {
   }
 
   Widget rank() {
+    CoinPriceinfo coinPriceinfo = CoinPriceinfo();
+    var userInfo = json.decode(widget.userObject);
+    var balance =
+        int.parse(userInfo["result"]["account_data"]["Balance"]) * 0.000001;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -155,9 +163,10 @@ class _accountInfoState extends State<accountInfo> {
                     child: Text(
                       "#8982",
                       style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w300,
-                          color: Color.fromARGB(255, 65, 65, 65)),
+                        fontSize: 25,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 65, 65, 65),
+                      ),
                     ),
                   ),
                 ],
@@ -199,12 +208,24 @@ class _accountInfoState extends State<accountInfo> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "€ 98998,-",
-                      style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.w300,
-                          color: Color.fromARGB(255, 65, 65, 65)),
+                    child: FutureBuilder(
+                      // future: coinPriceinfo.calculateValueOfWallet(
+                      //     "XRP", balance.toInt()),
+                      builder: ((context, snapshot) {
+                        if (snapshot.hasData) {
+                          double data = double.parse(snapshot.data.toString());
+                          return Text(
+                            "\$${data.round()}",
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 65, 65, 65),
+                            ),
+                          );
+                        } else {
+                          return Text("No data");
+                        }
+                      }),
                     ),
                   ),
                 ],
@@ -245,23 +266,33 @@ class _accountInfoState extends State<accountInfo> {
                   color: Color.fromARGB(255, 65, 65, 65),
                 ),
               ),
-              Text(
-                "All the transactions from this address",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w300,
-                  color: Color.fromARGB(255, 65, 65, 65),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "All the transactions from this address",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w300,
+                    color: Color.fromARGB(255, 65, 65, 65),
+                  ),
                 ),
               ),
-              Container(
-                child: Column(
-                  children: [
-                    transactionItem(),
-                    transactionItem(),
-                    transactionItem(),
-                    transactionItem(),
-                    transactionItem(),
-                  ],
+              Expanded(
+                child: Container(
+                  height: 300,
+                  child: ListView(
+                    children: [
+                      Column(
+                        children: [
+                          transactionItem(),
+                          transactionItem(),
+                          transactionItem(),
+                          transactionItem(),
+                          transactionItem(),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               )
             ],
@@ -286,24 +317,39 @@ class _accountInfoState extends State<accountInfo> {
             children: [
               Column(
                 children: [
-                  Text(
-                    "Wallet address",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontWeight: FontWeight.bold),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "id: naushd9887asdg78as7d68",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          color: Colors.white54,
+                          fontSize: 10),
+                    ),
                   ),
                   Text(
                     "jhbub7877asdbh88asdbyu",
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 13,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                  Icon(
+                    Icons.swipe_down_alt,
+                    color: Color.fromARGB(255, 252, 252, 252),
+                    size: 20,
+                  ),
+                  Text(
+                    "jhbub7877asdbh88asdbyu",
+                    style: TextStyle(
+                      fontSize: 13,
                       color: Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
                 ],
               ),
               Text(
-                "300",
+                "300 XRP",
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
