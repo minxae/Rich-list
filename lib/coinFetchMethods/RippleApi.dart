@@ -57,18 +57,14 @@ class RippleApi {
                 "forward": false,
                 "ledger_index_max": -1,
                 "ledger_index_min": -1,
-                "limit": 2
+                "limit": 5
               }
             ]
           }));
-
-      var jsonString = response.body;
-      var jsonObject = json.decode(jsonString);
-
-      if (jsonObject["result"]["status"] == "error") {
-        return "";
+      if (response.statusCode == 200) {
+        return response.body;
       } else {
-        return jsonString;
+        return "Oops.. Something went wrong";
       }
     } catch (e) {
       return e.toString();

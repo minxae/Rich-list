@@ -209,8 +209,6 @@ class _accountInfoState extends State<accountInfo> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder(
-                      // future: coinPriceinfo.calculateValueOfWallet(
-                      //     "XRP", balance.toInt()),
                       builder: ((context, snapshot) {
                         if (snapshot.hasData) {
                           double data = double.parse(snapshot.data.toString());
@@ -279,22 +277,27 @@ class _accountInfoState extends State<accountInfo> {
               ),
               Expanded(
                 child: Container(
-                  height: 300,
-                  child: ListView(
-                    children: [
-                      Column(
-                        children: [
-                          transactionItem(),
-                          transactionItem(),
-                          transactionItem(),
-                          transactionItem(),
-                          transactionItem(),
-                        ],
-                      ),
-                    ],
-                  ),
+                  child: FutureBuilder(
+                      future: displayAllTransactionWidgets(),
+                      builder: (context, AsyncSnapshot<List<Widget>> snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: ((context, index) {
+                              return snapshot.data![index];
+                            }),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('ERROR : ${snapshot.error.toString()}');
+                        } else {
+                          return Container(
+                            height: 200,
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      }),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -302,7 +305,9 @@ class _accountInfoState extends State<accountInfo> {
     );
   }
 
-  Widget transactionItem() {
+  Widget transactionItem(String txObject) {
+    print(txObject.trim());
+    print("-------------------------------------");
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Container(
@@ -320,7 +325,7 @@ class _accountInfoState extends State<accountInfo> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      "id: naushd9887asdg78as7d68",
+                      "a",
                       style: TextStyle(
                           fontWeight: FontWeight.w300,
                           color: Colors.white54,
@@ -328,7 +333,7 @@ class _accountInfoState extends State<accountInfo> {
                     ),
                   ),
                   Text(
-                    "jhbub7877asdbh88asdbyu",
+                    "a",
                     style: TextStyle(
                       fontSize: 13,
                       color: Color.fromARGB(255, 255, 255, 255),
@@ -340,7 +345,7 @@ class _accountInfoState extends State<accountInfo> {
                     size: 20,
                   ),
                   Text(
-                    "jhbub7877asdbh88asdbyu",
+                    "",
                     style: TextStyle(
                       fontSize: 13,
                       color: Color.fromARGB(255, 255, 255, 255),
@@ -361,5 +366,33 @@ class _accountInfoState extends State<accountInfo> {
         ),
       ),
     );
+  }
+
+  Future<List<Widget>> displayAllTransactionWidgets() async {
+    List<Widget> transactions = [];
+    RippleApi rippleApi = RippleApi();
+    var accountObj = json.decode(widget.userObject);
+    var address = accountObj["result"]["account_data"]["Account"];
+
+    try {
+      var txCallObj = await rippleApi.getTxHistoryIformation(address);
+      var txDecode = json.decode(txCallObj);
+      var allTxInfo = txDecode["result"]["transactions"];
+
+      if (allTxInfo.length != 0) {
+        for (int i = 0; i < allTxInfo.length; i++) {
+          var result = allTxInfo[i]["tx"];
+
+          transactions.add(transactionItem(result.toString()));
+        }
+      } else {
+        transactions.add(Text("No transactions found"));
+      }
+
+      return transactions;
+    } catch (e) {
+      print(e);
+      return transactions;
+    }
   }
 }
