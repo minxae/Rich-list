@@ -31,7 +31,6 @@ class CoinPriceinfo {
   // @param = amount of coins/tokens someone owns.
   Future<num> calculateValueOfWallet(
       String coinSymbol, int amountOfCoins) async {
-    print("asdasd");
     var coinPriceObj = await getCurrentPriceOfMultipleCoins([coinSymbol]);
     var coinPrice = coinPriceObj[0]["price_usd"];
     var result = amountOfCoins * coinPrice;

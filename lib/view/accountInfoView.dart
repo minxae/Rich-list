@@ -209,6 +209,8 @@ class _accountInfoState extends State<accountInfo> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder(
+                      // future: coinPriceinfo.calculateValueOfWallet(
+                      //     "XRP", balance.toInt()),
                       builder: ((context, snapshot) {
                         if (snapshot.hasData) {
                           double data = double.parse(snapshot.data.toString());
@@ -305,67 +307,87 @@ class _accountInfoState extends State<accountInfo> {
     );
   }
 
-  Widget transactionItem(String txObject) {
-    print(txObject.trim());
-    print("-------------------------------------");
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 62, 136, 247),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      "a",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: Colors.white54,
-                          fontSize: 10),
-                    ),
-                  ),
-                  Text(
-                    "a",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  ),
-                  Icon(
-                    Icons.swipe_down_alt,
-                    color: Color.fromARGB(255, 252, 252, 252),
-                    size: 20,
-                  ),
-                  Text(
-                    "",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                "300 XRP",
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
-              )
-            ],
+  Widget transactionItem(dynamic txObject, String address) {
+    var txDestination = txObject["Destination"];
+    var txAmount = txObject["Amount"] ?? "0";
+    var calcAmount = int.parse(txAmount) * 0.000001;
+    Color txColor = Color.fromARGB(255, 255, 255, 255);
+    if (address != txDestination) {
+      txColor = Colors.redAccent;
+    }
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.only(left: 9.0),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            txObject["hash"],
+            style: TextStyle(
+                fontWeight: FontWeight.w200,
+                color: Color.fromARGB(237, 2, 2, 2),
+                fontSize: 10),
           ),
         ),
       ),
-    );
+      Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 62, 136, 247),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        txObject["TransactionType"],
+                        style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            color: Colors.white54,
+                            fontSize: 10),
+                      ),
+                    ),
+                    Text(
+                      txObject["Account"].toString(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    ),
+                    Icon(
+                      Icons.swipe_down_alt,
+                      color: Color.fromARGB(255, 252, 252, 252),
+                      size: 20,
+                    ),
+                    Text(
+                      txObject["Destination"].toString(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  '${calcAmount.round().toString()} XRP',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: txColor,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      )
+    ]);
   }
 
   Future<List<Widget>> displayAllTransactionWidgets() async {
@@ -376,14 +398,16 @@ class _accountInfoState extends State<accountInfo> {
 
     try {
       var txCallObj = await rippleApi.getTxHistoryIformation(address);
-      var txDecode = json.decode(txCallObj);
+      var txDecode = jsonDecode(txCallObj);
       var allTxInfo = txDecode["result"]["transactions"];
 
       if (allTxInfo.length != 0) {
         for (int i = 0; i < allTxInfo.length; i++) {
           var result = allTxInfo[i]["tx"];
-
-          transactions.add(transactionItem(result.toString()));
+          if (result["TransactionType"] == "Payment" &&
+              result["Amount"].runtimeType == String) {
+            transactions.add(transactionItem(result, address));
+          }
         }
       } else {
         transactions.add(Text("No transactions found"));

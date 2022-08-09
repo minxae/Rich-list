@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class RippleApi {
@@ -57,7 +58,7 @@ class RippleApi {
                 "forward": false,
                 "ledger_index_max": -1,
                 "ledger_index_min": -1,
-                "limit": 5
+                "limit": 30
               }
             ]
           }));
